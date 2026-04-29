@@ -453,6 +453,7 @@
     let editingPlayerId = null;
     let firebaseLoaded = false;
     let syncingFromFirebase = false;
+    let generationCounter = 0;
 
 
     function showInfo(title, text) {
@@ -852,54 +853,99 @@
         return;
       }
 
-      const teams = Array.from({ length: teamCount }, (_, index) => ({
-        name: `Team ${String.fromCharCode(65 + index)}`,
-        players: [],
-        score: 0,
-        setters: 0,
-        hitters: 0,
-        defenders: 0,
-        passers: 0,
-        blockers: 0
-      }));
+      generationCounter++;
 
-      const shuffled = [...activePlayers].sort(() => Math.random() - 0.5);
+      let bestResult = null;
+      let bestPenalty = Infinity;
 
-      const sorted = shuffled.sort((a, b) => {
-        const aSetter = detectAutoRole(a).includes("Setter") || a.setting >= 8;
-        const bSetter = detectAutoRole(b).includes("Setter") || b.setting >= 8;
+      // Try several random versions and keep one that is balanced.
+      // This makes repeated clicks create new teams instead of the same sorted result.
+      for (let attempt = 0; attempt < 80; attempt++) {
+        const teams = Array.from({ length: teamCount }, (_, index) => ({
+          name: `Team ${String.fromCharCode(65 + index)}`,
+          players: [],
+          score: 0,
+          setters: 0,
+          hitters: 0,
+          defenders: 0,
+          passers: 0,
+          blockers: 0
+        }));
 
-        if (aSetter !== bSetter) return bSetter - aSetter;
+        const shuffled = [...activePlayers].sort(() => Math.random() - 0.5);
 
-        return weightedScore(b, system) - weightedScore(a, system);
-      });
+        const sorted = shuffled.sort((a, b) => {
+          const aSetter = detectAutoRole(a).includes("Setter") || a.setting >= 8;
+          const bSetter = detectAutoRole(b).includes("Setter") || b.setting >= 8;
 
-      sorted.forEach(player => {
-        let bestTeam;
-        const autoRole = detectAutoRole(player);
+          if (aSetter !== bSetter) return bSetter - aSetter;
 
-        if (autoRole.includes("Setter") || player.setting >= 8) {
-          bestTeam = [...teams].sort((a, b) => a.setters - b.setters || a.score - b.score)[0];
-        } else if (autoRole.includes("Hitter") || autoRole.includes("Blocker") || player.hitting >= 8 || player.blocking >= 8) {
-          bestTeam = [...teams].sort((a, b) => a.hitters - b.hitters || a.blockers - b.blockers || a.score - b.score)[0];
-        } else if (autoRole.includes("Defense") || autoRole.includes("Passer") || player.defense >= 8 || player.serveReceive >= 8) {
-          bestTeam = [...teams].sort((a, b) => a.defenders - b.defenders || a.passers - b.passers || a.score - b.score)[0];
-        } else {
-          bestTeam = [...teams].sort((a, b) => a.score - b.score)[0];
+          const scoreDiff = weightedScore(b, system) - weightedScore(a, system);
+
+          if (Math.abs(scoreDiff) < 3) {
+            return Math.random() - 0.5;
+          }
+
+          return scoreDiff;
+        });
+
+        sorted.forEach(player => {
+          let bestTeam;
+          const autoRole = detectAutoRole(player);
+
+          if (autoRole.includes("Setter") || player.setting >= 8) {
+            bestTeam = [...teams].sort((a, b) => a.setters - b.setters || a.score - b.score || Math.random() - 0.5)[0];
+          } else if (autoRole.includes("Hitter") || autoRole.includes("Blocker") || player.hitting >= 8 || player.blocking >= 8) {
+            bestTeam = [...teams].sort((a, b) => a.hitters - b.hitters || a.blockers - b.blockers || a.score - b.score || Math.random() - 0.5)[0];
+          } else if (autoRole.includes("Defense") || autoRole.includes("Passer") || player.defense >= 8 || player.serveReceive >= 8) {
+            bestTeam = [...teams].sort((a, b) => a.defenders - b.defenders || a.passers - b.passers || a.score - b.score || Math.random() - 0.5)[0];
+          } else {
+            bestTeam = [...teams].sort((a, b) => a.score - b.score || Math.random() - 0.5)[0];
+          }
+
+          bestTeam.players.push(player);
+          bestTeam.score += weightedScore(player, system);
+
+          if (autoRole.includes("Setter") || player.setting >= 8) bestTeam.setters++;
+          if (autoRole.includes("Hitter") || player.hitting >= 8) bestTeam.hitters++;
+          if (autoRole.includes("Blocker") || player.blocking >= 8) bestTeam.blockers++;
+          if (autoRole.includes("Defense") || player.defense >= 8) bestTeam.defenders++;
+          if (autoRole.includes("Passer") || player.serveReceive >= 8) bestTeam.passers++;
+        });
+
+        const scores = teams.map(team => team.score);
+        const maxScore = Math.max(...scores);
+        const minScore = Math.min(...scores);
+
+        let penalty = maxScore - minScore;
+
+        if (system === "4-2") {
+          teams.forEach(team => {
+            if (team.setters < 2) penalty += 20;
+          });
         }
 
-        bestTeam.players.push(player);
-        bestTeam.score += weightedScore(player, system);
+        if (system === "5-1") {
+          teams.forEach(team => {
+            if (team.setters < 1) penalty += 20;
+          });
+        }
 
-        if (autoRole.includes("Setter") || player.setting >= 8) bestTeam.setters++;
-        if (autoRole.includes("Hitter") || player.hitting >= 8) bestTeam.hitters++;
-        if (autoRole.includes("Blocker") || player.blocking >= 8) bestTeam.blockers++;
-        if (autoRole.includes("Defense") || player.defense >= 8) bestTeam.defenders++;
-        if (autoRole.includes("Passer") || player.serveReceive >= 8) bestTeam.passers++;
-      });
+        if (system === "6-2") {
+          teams.forEach(team => {
+            if (team.setters < 2) penalty += 20;
+          });
+        }
 
-      renderTeams(teams, system);
+        if (penalty < bestPenalty) {
+          bestPenalty = penalty;
+          bestResult = teams;
+        }
+      }
+
+      renderTeams(bestResult, system);
     }
+
 
     function renderTeams(teams, system) {
       const warnings = [];
