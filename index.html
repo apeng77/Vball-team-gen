@@ -514,6 +514,7 @@
 
         return {
           ...player,
+          active: player.active !== false,
           role,
           hitting,
           setting,
@@ -679,6 +680,7 @@
       } else {
         players.push({
           id: Date.now(),
+          active: true,
           ...playerData
         });
       }
@@ -747,6 +749,18 @@
       }
     }
 
+    function toggleActive(id) {
+      players = players.map(player => {
+        if (player.id === id) {
+          return { ...player, active: player.active === false };
+        }
+        return player;
+      });
+
+      savePlayers();
+      renderPlayers();
+    }
+
     function clearPlayers() {
       if (!confirm("Clear all saved players?")) return;
       players = [];
@@ -769,7 +783,7 @@
         const autoRole = detectAutoRole(player);
 
         return `
-        <div class="player">
+        <div class="player" style="opacity: ${player.active === false ? 0.45 : 1}">
           <div>
             <strong>${player.name}</strong> — ${autoRole}
             <div class="small">
@@ -777,6 +791,15 @@
             </div>
           </div>
           <div class="button-row">
+            <label style="display:flex; align-items:center; gap:4px; font-size:13px;">
+              <input
+                type="checkbox"
+                style="width:auto;"
+                ${player.active !== false ? "checked" : ""}
+                onchange="toggleActive(${player.id})"
+              />
+              Play
+            </label>
             <button class="small-edit" onclick="editPlayer(${player.id})">Edit</button>
             <button class="small-danger" onclick="removePlayer(${player.id})">Remove</button>
           </div>
@@ -814,16 +837,18 @@
     }
 
     function generateTeams() {
-      if (players.length < 2) {
-        alert("Add at least 2 players.");
+      const activePlayers = players.filter(player => player.active !== false);
+
+      if (activePlayers.length < 2) {
+        alert("Add at least 2 active players.");
         return;
       }
 
       const system = document.getElementById("system").value;
       const teamCount = Number(document.getElementById("teamCount").value);
 
-      if (players.length < teamCount) {
-        alert("You need at least one player per team.");
+      if (activePlayers.length < teamCount) {
+        alert("You need at least one active player per team.");
         return;
       }
 
@@ -838,7 +863,7 @@
         blockers: 0
       }));
 
-      const shuffled = [...players].sort(() => Math.random() - 0.5);
+      const shuffled = [...activePlayers].sort(() => Math.random() - 0.5);
 
       const sorted = shuffled.sort((a, b) => {
         const aSetter = detectAutoRole(a).includes("Setter") || a.setting >= 8;
@@ -927,6 +952,7 @@
     window.clearPlayers = clearPlayers;
     window.editPlayer = editPlayer;
     window.removePlayer = removePlayer;
+    window.toggleActive = toggleActive;
     window.generateTeams = generateTeams;
 
     updateOverallPreview();
