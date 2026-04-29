@@ -133,53 +133,20 @@
     }
 
 
-    .label-with-info {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .info-button {
-      width: 22px;
-      height: 22px;
-      min-width: 22px;
-      border-radius: 50%;
-      background: #2563eb;
-      color: white;
-      font-size: 13px;
-      font-weight: bold;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .info-popup {
-      position: fixed;
-      left: 18px;
-      right: 18px;
-      bottom: 18px;
-      background: #111827;
-      color: white;
-      padding: 14px;
-      border-radius: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-      font-size: 14px;
-      line-height: 1.4;
-      display: none;
-      z-index: 9999;
-    }
-
-    .info-popup strong {
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .info-popup-close {
+    .sync-status {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      padding: 10px;
+      border-radius: 10px;
       margin-top: 10px;
-      background: #374151;
+      font-size: 14px;
+    }
+
+    .sync-status.offline {
+      background: #fff7ed;
+      border-color: #fed7aa;
+      color: #9a3412;
     }
 
     @media (max-width: 700px) {
@@ -201,6 +168,7 @@
     <div class="card">
       <h1>Volleyball Team Generator</h1>
       <p>Add player stats, save your group, edit players, and generate balanced teams.</p>
+      <div id="syncStatus" class="sync-status offline">Connecting to Firebase...</div>
     </div>
 
     <div class="card">
@@ -222,70 +190,46 @@
 
       <div class="grid-3">
         <div>
-          <div class="label-with-info">
-            <label>Hitting</label>
-            <span class="info-button" onclick="showInfo('Hitting', `1-2: Free balls or barely clears net. 3-4: Can swing but inconsistent. 5-6: Decent hits and scores sometimes. 7-8: Reliable attacker who can aim shots. 9-10: Hard to defend, smart, and consistent scorer.`)">i</span>
-          </div>
+          <label>Hitting</label>
           <input id="hitting" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <div class="label-with-info">
-            <label>Setting</label>
-            <span class="info-button" onclick="showInfo('Setting', `1-2: Cannot really set. 3-4: Sets go up but placement is inconsistent. 5-6: Can run a basic offense. 7-8: Consistent, hittable balls. 9-10: Very accurate and controls tempo.`)">i</span>
-          </div>
+          <label>Setting</label>
           <input id="setting" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <div class="label-with-info">
-            <label>Defense</label>
-            <span class="info-button" onclick="showInfo('Defense', `1-2: Struggles to react or misses easy balls. 3-4: Gets touches but not controlled. 5-6: Keeps rallies going sometimes. 7-8: Solid defender who reads hitters. 9-10: Elite reads and rarely lets balls drop.`)">i</span>
-          </div>
+          <label>Defense</label>
           <input id="defense" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
         </div>
       </div>
 
       <div class="grid-3">
         <div>
-          <div class="label-with-info">
-            <label>Serving</label>
-            <span class="info-button" onclick="showInfo('Serving', `1-2: Misses most serves. 3-4: Gets it over but easy. 5-6: Consistent with some pressure. 7-8: Tough serves that force bad passes. 9-10: Aggressive and consistent server.`)">i</span>
-          </div>
+          <label>Serving</label>
           <input id="serving" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <div class="label-with-info">
-            <label>Serve Receive</label>
-            <span class="info-button" onclick="showInfo('Serve Receive', `1-2: Shanks most serves. 3-4: Inconsistent passing. 5-6: Decent passes, not perfect. 7-8: Reliable passer. 9-10: Consistently gives great passes.`)">i</span>
-          </div>
+          <label>Serve Receive</label>
           <input id="serveReceive" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <div class="label-with-info">
-            <label>Blocking</label>
-            <span class="info-button" onclick="showInfo('Blocking', `1-2: No timing or little net presence. 3-4: Jumps but not very effective. 5-6: Gets touches sometimes. 7-8: Solid blocker. 9-10: Game-changing blocker at the net.`)">i</span>
-          </div>
+          <label>Blocking</label>
           <input id="blocking" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
         </div>
       </div>
 
       <div class="grid">
         <div>
-          <div class="label-with-info">
-            <label>Athleticism / Movement</label>
-            <span class="info-button" onclick="showInfo('Athleticism / Movement', `1-2: Slow or limited movement. 3-4: Below-average to average mobility. 5-6: Moves fine with decent jump. 7-8: Quick with good court coverage. 9-10: Very fast and explosive.`)">i</span>
-          </div>
+          <label>Athleticism / Movement</label>
           <input id="athleticism" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <div class="label-with-info">
-            <label>Consistency</label>
-            <span class="info-button" onclick="showInfo('Consistency', `1-2: Very inconsistent and hot/cold. 3-4: More mistakes than reliable plays. 5-6: Average consistency. 7-8: Reliable most points. 9-10: Almost never makes avoidable mistakes.`)">i</span>
-          </div>
+          <label>Consistency</label>
           <input id="consistency" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
         </div>
       </div>
@@ -340,32 +284,60 @@
       <div id="teams" class="teams"></div>
     </div>
 
-
-    <div id="infoPopup" class="info-popup">
-      <strong id="infoTitle"></strong>
-      <div id="infoText"></div>
-      <button class="info-popup-close" onclick="hideInfo()">Close</button>
-    </div>
-
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
-    function showInfo(title, text) {
-      const popup = document.getElementById("infoPopup");
-      document.getElementById("infoTitle").textContent = title;
-      document.getElementById("infoText").textContent = text;
-      popup.style.display = "block";
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3aahw4LYvNdQVekOBJPTOxiX80_1MOeE",
+      authDomain: "vball-team-gen.firebaseapp.com",
+      databaseURL: "https://vball-team-gen-default-rtdb.firebaseio.com",
+      projectId: "vball-team-gen",
+      storageBucket: "vball-team-gen.firebasestorage.app",
+      messagingSenderId: "501689612905",
+      appId: "1:501689612905:web:5352bc6bc0bef8b49140f8",
+      measurementId: "G-LN4MSE1856"
+    };
 
-    function hideInfo() {
-      document.getElementById("infoPopup").style.display = "none";
-    }
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const playersRef = ref(db, "volleyballTeamGenerator/main-group/players");
 
-    let players = JSON.parse(localStorage.getItem("volleyballPlayers")) || [];
+    let players = [];
     let editingPlayerId = null;
+    let firebaseLoaded = false;
+    let syncingFromFirebase = false;
 
-    function migrateOldPlayers() {
+    function setSyncStatus(message, connected = false) {
+      const box = document.getElementById("syncStatus");
+      if (!box) return;
+      box.textContent = message;
+      box.classList.toggle("offline", !connected);
+    }
+
+    onValue(playersRef, (snapshot) => {
+      syncingFromFirebase = true;
+      players = snapshot.val() || [];
+      firebaseLoaded = true;
+      migrateOldPlayers(false);
+      updateOverallPreview();
+      renderPlayers();
+      setSyncStatus("Firebase connected. Players sync across devices.", true);
+      syncingFromFirebase = false;
+    }, (error) => {
+      console.error(error);
+      players = JSON.parse(localStorage.getItem("volleyballPlayers")) || [];
+      firebaseLoaded = false;
+      migrateOldPlayers(false);
+      updateOverallPreview();
+      renderPlayers();
+      setSyncStatus("Firebase error. Check your Realtime Database rules. Using this device only for now.", false);
+    });
+
+
+    function migrateOldPlayers(shouldSave = true) {
       players = players.map(player => {
         const hitting = Number(player.hitting ?? player.overall ?? 5);
         const setting = Number(player.setting ?? player.overall ?? 5);
@@ -394,11 +366,21 @@
         };
       });
 
-      savePlayers();
+      if (shouldSave) savePlayers();
     }
 
     function savePlayers() {
+      if (syncingFromFirebase) return;
+
       localStorage.setItem("volleyballPlayers", JSON.stringify(players));
+
+      if (firebaseLoaded) {
+        set(playersRef, players).catch((error) => {
+          console.error(error);
+          alert("Firebase save failed. Check your Realtime Database rules.");
+          setSyncStatus("Firebase save failed. Check your database rules.", false);
+        });
+      }
     }
 
     function statValue(id) {
@@ -764,9 +746,15 @@
       `).join("");
     }
 
-    migrateOldPlayers();
-    updateOverallPreview();
-    renderPlayers();
+
+    window.updateOverallPreview = updateOverallPreview;
+    window.savePlayerFromForm = savePlayerFromForm;
+    window.cancelEdit = cancelEdit;
+    window.clearPlayers = clearPlayers;
+    window.editPlayer = editPlayer;
+    window.removePlayer = removePlayer;
+    window.generateTeams = generateTeams;
+
   </script>
 </body>
 </html>
