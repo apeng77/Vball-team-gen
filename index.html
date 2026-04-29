@@ -149,7 +149,22 @@
       color: #9a3412;
     }
 
-    @media (max-width: 700px) {
+    
+.sync-dot {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f97316;
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  z-index: 9999;
+}
+.sync-dot.connected { background: #22c55e; }
+.sync-dot.error { background: #ef4444; }
+
+@media (max-width: 700px) {
       .grid, .grid-3, .teams {
         grid-template-columns: 1fr;
       }
@@ -168,7 +183,7 @@
     <div class="card">
       <h1>Volleyball Team Generator</h1>
       <p>Add player stats, save your group, edit players, and generate balanced teams.</p>
-      <div id="syncStatus" class="sync-status offline">Connecting to Firebase...</div>
+      <div id="syncDot" class="sync-dot"></div>
     </div>
 
     <div class="card">
@@ -310,11 +325,15 @@
     let firebaseLoaded = false;
     let syncingFromFirebase = false;
 
-    function setSyncStatus(message, connected = false) {
-      const box = document.getElementById("syncStatus");
-      if (!box) return;
-      box.textContent = message;
-      box.classList.toggle("offline", !connected);
+    function setSyncStatus(_, connected = false, error = false) {
+      const dot = document.getElementById("syncDot");
+      if (!dot) return;
+      dot.classList.remove("connected", "error");
+      if (error) {
+        dot.classList.add("error");
+      } else if (connected) {
+        dot.classList.add("connected");
+      }
     }
 
     onValue(playersRef, (snapshot) => {
@@ -324,7 +343,7 @@
       migrateOldPlayers(false);
       updateOverallPreview();
       renderPlayers();
-      setSyncStatus("Firebase connected. Players sync across devices.", true);
+      setSyncStatus("", true);
       syncingFromFirebase = false;
     }, (error) => {
       console.error(error);
@@ -333,7 +352,7 @@
       migrateOldPlayers(false);
       updateOverallPreview();
       renderPlayers();
-      setSyncStatus("Firebase error. Check your Realtime Database rules. Using this device only for now.", false);
+      setSyncStatus("", false, true);
     });
 
 
@@ -378,7 +397,7 @@
         set(playersRef, players).catch((error) => {
           console.error(error);
           alert("Firebase save failed. Check your Realtime Database rules.");
-          setSyncStatus("Firebase save failed. Check your database rules.", false);
+          setSyncStatus("", false, true);
         });
       }
     }
