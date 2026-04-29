@@ -164,6 +164,80 @@
 .sync-dot.connected { background: #22c55e; }
 .sync-dot.error { background: #ef4444; }
 
+
+    input[type="range"] {
+      accent-color: #2563eb;
+      cursor: pointer;
+      padding: 6px 0;
+    }
+
+    .stat-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      margin-bottom: 2px;
+      gap: 8px;
+    }
+
+    .stat-label-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-value {
+      background: #2563eb;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .info-button {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .info-popup {
+      position: fixed;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      background: #111827;
+      color: white;
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      font-size: 14px;
+      line-height: 1.4;
+      display: none;
+      z-index: 10000;
+    }
+
+    .info-popup strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .info-popup button {
+      margin-top: 10px;
+      background: #374151;
+    }
+
 @media (max-width: 700px) {
       .grid, .grid-3, .teams {
         grid-template-columns: 1fr;
@@ -205,47 +279,95 @@
 
       <div class="grid-3">
         <div>
-          <label>Hitting</label>
-          <input id="hitting" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
+          <div class="stat-label">
+            <div class="stat-label-left">
+              <label>Hitting</label>
+              <span class="info-button" onclick="showInfo('Hitting', `1-2: Free balls or barely clears net. 3-4: Can swing but inconsistent. 5-6: Decent hits and scores sometimes. 7-8: Reliable attacker who can aim shots. 9-10: Hard to defend, smart, and consistent scorer.`)">i</span>
+            </div>
+            <span id="hittingValue" class="stat-value">5.0</span>
+          </div>
+          <input id="hitting" type="range" min="1" max="10" step="0.5" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <label>Setting</label>
-          <input id="setting" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
+          <div class="stat-label">
+            <div class="stat-label-left">
+              <label>Setting</label>
+              <span class="info-button" onclick="showInfo('Setting', `1-2: Cannot really set. 3-4: Sets go up but placement is inconsistent. 5-6: Can run a basic offense. 7-8: Consistent, hittable balls. 9-10: Very accurate and controls tempo.`)">i</span>
+            </div>
+            <span id="settingValue" class="stat-value">5.0</span>
+          </div>
+          <input id="setting" type="range" min="1" max="10" step="0.5" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <label>Defense</label>
-          <input id="defense" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
+          <div class="stat-label">
+            <div class="stat-label-left">
+              <label>Defense</label>
+              <span class="info-button" onclick="showInfo('Defense', `1-2: Struggles to react or misses easy balls. 3-4: Gets touches but not controlled. 5-6: Keeps rallies going sometimes. 7-8: Solid defender who reads hitters. 9-10: Elite reads and rarely lets balls drop.`)">i</span>
+            </div>
+            <span id="defenseValue" class="stat-value">5.0</span>
+          </div>
+          <input id="defense" type="range" min="1" max="10" step="0.5" value="5" oninput="updateOverallPreview()" />
         </div>
       </div>
 
       <div class="grid-3">
         <div>
-          <label>Serving</label>
-          <input id="serving" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
+          <div class="stat-label">
+            <div class="stat-label-left">
+              <label>Serving</label>
+              <span class="info-button" onclick="showInfo('Serving', `1-2: Misses most serves. 3-4: Gets it over but easy. 5-6: Consistent with some pressure. 7-8: Tough serves that force bad passes. 9-10: Aggressive and consistent server.`)">i</span>
+            </div>
+            <span id="servingValue" class="stat-value">5.0</span>
+          </div>
+          <input id="serving" type="range" min="1" max="10" step="0.5" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <label>Serve Receive</label>
-          <input id="serveReceive" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
+          <div class="stat-label">
+            <div class="stat-label-left">
+              <label>Serve Receive</label>
+              <span class="info-button" onclick="showInfo('Serve Receive', `1-2: Shanks most serves. 3-4: Inconsistent passing. 5-6: Decent passes, not perfect. 7-8: Reliable passer. 9-10: Consistently gives great passes.`)">i</span>
+            </div>
+            <span id="serveReceiveValue" class="stat-value">5.0</span>
+          </div>
+          <input id="serveReceive" type="range" min="1" max="10" step="0.5" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <label>Blocking</label>
-          <input id="blocking" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
+          <div class="stat-label">
+            <div class="stat-label-left">
+              <label>Blocking</label>
+              <span class="info-button" onclick="showInfo('Blocking', `1-2: No timing or little net presence. 3-4: Jumps but not very effective. 5-6: Gets touches sometimes. 7-8: Solid blocker. 9-10: Game-changing blocker at the net.`)">i</span>
+            </div>
+            <span id="blockingValue" class="stat-value">5.0</span>
+          </div>
+          <input id="blocking" type="range" min="1" max="10" step="0.5" value="5" oninput="updateOverallPreview()" />
         </div>
       </div>
 
       <div class="grid">
         <div>
-          <label>Athleticism / Movement</label>
-          <input id="athleticism" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
+          <div class="stat-label">
+            <div class="stat-label-left">
+              <label>Athleticism / Movement</label>
+              <span class="info-button" onclick="showInfo('Athleticism / Movement', `1-2: Slow or limited movement. 3-4: Below-average to average mobility. 5-6: Moves fine with a decent jump. 7-8: Quick with good court coverage. 9-10: Very fast and explosive.`)">i</span>
+            </div>
+            <span id="athleticismValue" class="stat-value">5.0</span>
+          </div>
+          <input id="athleticism" type="range" min="1" max="10" step="0.5" value="5" oninput="updateOverallPreview()" />
         </div>
 
         <div>
-          <label>Consistency</label>
-          <input id="consistency" type="number" min="1" max="10" value="5" oninput="updateOverallPreview()" />
+          <div class="stat-label">
+            <div class="stat-label-left">
+              <label>Consistency</label>
+              <span class="info-button" onclick="showInfo('Consistency', `1-2: Very inconsistent and hot/cold. 3-4: More mistakes than reliable plays. 5-6: Average consistency. 7-8: Reliable most points. 9-10: Almost never makes avoidable mistakes.`)">i</span>
+            </div>
+            <span id="consistencyValue" class="stat-value">5.0</span>
+          </div>
+          <input id="consistency" type="range" min="1" max="10" step="0.5" value="5" oninput="updateOverallPreview()" />
         </div>
       </div>
 
@@ -299,6 +421,13 @@
       <div id="teams" class="teams"></div>
     </div>
 
+
+    <div id="infoPopup" class="info-popup">
+      <strong id="infoTitle"></strong>
+      <div id="infoText"></div>
+      <button onclick="hideInfo()">Close</button>
+    </div>
+
   </div>
 
   <script type="module">
@@ -324,6 +453,19 @@
     let editingPlayerId = null;
     let firebaseLoaded = false;
     let syncingFromFirebase = false;
+
+
+    function showInfo(title, text) {
+      const popup = document.getElementById("infoPopup");
+      document.getElementById("infoTitle").textContent = title;
+      document.getElementById("infoText").textContent = text;
+      popup.style.display = "block";
+    }
+
+    function hideInfo() {
+      const popup = document.getElementById("infoPopup");
+      if (popup) popup.style.display = "none";
+    }
 
     function setSyncStatus(_, connected = false, error = false) {
       const dot = document.getElementById("syncDot");
@@ -468,6 +610,17 @@
     }
 
     function updateOverallPreview() {
+      const stats = ["hitting", "setting", "defense", "serving", "serveReceive", "blocking", "athleticism", "consistency"];
+
+      stats.forEach(stat => {
+        const input = document.getElementById(stat);
+        const valueDisplay = document.getElementById(stat + "Value");
+
+        if (input && valueDisplay) {
+          valueDisplay.textContent = Number(input.value).toFixed(1);
+        }
+      });
+
       document.getElementById("overallPreview").textContent = currentOverall().toFixed(1);
       const rolePreview = document.getElementById("rolePreview");
       if (rolePreview) {
@@ -766,6 +919,8 @@
     }
 
 
+    window.showInfo = showInfo;
+    window.hideInfo = hideInfo;
     window.updateOverallPreview = updateOverallPreview;
     window.savePlayerFromForm = savePlayerFromForm;
     window.cancelEdit = cancelEdit;
@@ -773,6 +928,9 @@
     window.editPlayer = editPlayer;
     window.removePlayer = removePlayer;
     window.generateTeams = generateTeams;
+
+    updateOverallPreview();
+    renderPlayers();
 
   </script>
 </body>
