@@ -396,6 +396,7 @@
             <option value="5-1">5-1</option>
             <option value="6-2">6-2</option>
             <option value="casual">Casual Balanced</option>
+            <option value="random">Random</option>
             <option value="doubles">Doubles</option>
             <option value="trios">Trios</option>
             <option value="quads">Quads</option>
@@ -854,6 +855,38 @@
       }
 
       generationCounter++;
+
+      if (system === "random") {
+        const teams = Array.from({ length: teamCount }, (_, index) => ({
+          name: `Team ${String.fromCharCode(65 + index)}`,
+          players: [],
+          score: 0,
+          setters: 0,
+          hitters: 0,
+          defenders: 0,
+          passers: 0,
+          blockers: 0
+        }));
+
+        const shuffled = [...activePlayers].sort(() => Math.random() - 0.5);
+
+        shuffled.forEach((player, index) => {
+          const team = teams[index % teamCount];
+          const autoRole = detectAutoRole(player);
+
+          team.players.push(player);
+          team.score += weightedScore(player, "casual");
+
+          if (autoRole.includes("Setter") || player.setting >= 8) team.setters++;
+          if (autoRole.includes("Hitter") || player.hitting >= 8) team.hitters++;
+          if (autoRole.includes("Blocker") || player.blocking >= 8) team.blockers++;
+          if (autoRole.includes("Defense") || player.defense >= 8) team.defenders++;
+          if (autoRole.includes("Passer") || player.serveReceive >= 8) team.passers++;
+        });
+
+        renderTeams(teams, system);
+        return;
+      }
 
       let bestResult = null;
       let bestPenalty = Infinity;
